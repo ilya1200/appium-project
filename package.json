@@ -1,0 +1,15 @@
+{
+  "name": "appium-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "webdriverio": "^5.16.3"
+  }
+}
