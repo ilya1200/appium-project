@@ -18,6 +18,34 @@ class HomePage {
             advancedSearchIcon: {
                 locator: "#advancedSearchIcon",
                 type: "id"
+            },
+            advancedSearchBtn: {
+                locator: "#btnForm",
+                type: "id"
+            },
+            cakeTypesCheckBox: {
+                locator: cakeType => `input.cakeTypes[value='${cakeType}']`,
+                locatorType: "css"
+            },
+            cakeRatesCheckBox: {
+                locator: cakeRate => `input.cakeRates[value='${cakeRate}']`,
+                locatorType: "css"
+            },
+            dateOfUpload: {
+                locator: "input.inputDate",
+                locatorType: "css"
+            },
+            allTheseWords: {
+                locator: "#input1",
+                locatorType: "id"
+            },
+            exactWords: {
+                locator: "#input2",
+                locatorType: "id"
+            },
+            advancedSearchResults: {
+                locator: "div.searchedItem",
+                locatorType: "css"
             }
         }
     }
@@ -25,6 +53,7 @@ class HomePage {
 
     async navigateToHomePage() {
         await this.appium.getURL(this.url);
+        await this.appium.driver.pause(1000);
     }
 
     async search(searchWord) {
@@ -57,55 +86,84 @@ class HomePage {
         await searchBtn.click();
     }
 
+    async advancedSearch(cakeTypes = [], cakeRates = [], dateOfUpload = "", allTheseWords = "", exactWords = "") {
+        await this.openAdvancedSearch();
+        await this.fillTheFormWith(cakeTypes, cakeRates, dateOfUpload, allTheseWords, exactWords);
+        await this.clickAdvancedSearch();
+        const advancedSearchOutput = await this.getAdvancedSearchResults();
+        const isValid = this.validateAdvSearchOutput(advancedSearchOutput, cakeTypes, cakeRates, dateOfUpload, allTheseWords, exactWords);
+        return isValid;
+    }
+
     async openAdvancedSearch() {
         const advancedSearchIcon = await this.appium.driver.$(this.locators.advancedSearchIcon.locator);
         await advancedSearchIcon.click();
     }
 
-    //
+    async clickAdvancedSearch() {
+        const advancedSearchBtn = await this.appium.driver.$(this.locators.advancedSearchBtn.locator);
+        await advancedSearchBtn.click();
+    }
 
-    // capitalize(str) {
-    //     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    // }
+    capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
 
-    // async fillTheFormWith(cakeTypes = [], cakeRates = [], dateOfUpload = "", allTheseWords = "", exactWords = "") {
-    //     for (let cakeType of cakeTypes) {
-    //         const cakeTypesCheckBox = this.locators.cakeTypesCheckBox;
-    //         const cakeTypeCap = this.capitalize(cakeType);
-    //         await this.appium.clickElement(cakeTypesCheckBox.locator(cakeTypeCap), cakeTypesCheckBox.locatorType);
-    //     }
+    async fillTheFormWith(cakeTypes = [], cakeRates = [], dateOfUpload = "", allTheseWords = "", exactWords = "") {
+        for (let cakeType of cakeTypes) {
+            const cakeTypeCap = this.capitalize(cakeType);
+            const cakeTypeCheckBox = await this.appium.driver.$(this.locators.cakeTypesCheckBox.locator(cakeTypeCap));
+            await cakeTypeCheckBox.click();
+        }
 
-    //     for (let cakeRate of cakeRates) {
-    //         const cakeRatesCheckBox = this.locators.cakeRatesCheckBox;
-    //         await this.appium.clickElement(cakeRatesCheckBox.locator(cakeRate), cakeRatesCheckBox.locatorType);
-    //     }
+        for (let cakeRate of cakeRates) {
+            const cakeRateCheckBox = await this.appium.driver.$(this.locators.cakeRatesCheckBox.locator(cakeRate));
+            await cakeRateCheckBox.click();
+        }
 
-    //     await this.appium.write(dateOfUpload, this.locators.dateOfUpload.locator, this.locators.dateOfUpload.locatorType);
-    //     await this.appium.write(allTheseWords, this.locators.allTheseWords.locator, this.locators.allTheseWords.locatorType);
-    //     await this.appium.write(exactWords, this.locators.exactWords.locator, this.locators.exactWords.locatorType);
-    // }
+        // const dateOfUploadInput = await this.appium.driver.$(this.locators.dateOfUpload.locator);
+        const allTheseWordsInput = await this.appium.driver.$(this.locators.allTheseWords.locator);
+        const exactWordsInput = await this.appium.driver.$(this.locators.exactWords.locator);
 
-    // async getAdvancedSearchResults() {
-    //     return this.appium.getTextFromElement(this.locators.advancedSearchResults.locator, this.locators.advancedSearchResults.locatorType)
-    // }
+        // await dateOfUploadInput.setValue(dateOfUpload);
+        await allTheseWordsInput.setValue(allTheseWords);
+        await exactWordsInput.setValue(exactWords);
+    }
 
-    // async clickFormBtnSearch() {
-    //     await this.appium.clickElement(this.locators.formBtnSearch.locator, this.locators.formBtnSearch.locatorType);
-    // }
+    async getAdvancedSearchResults() {
+        const advancedSearchResults = await this.appium.driver.$(this.locators.advancedSearchResults.locator);
+        return await advancedSearchResults.getText();
+    }
 
-    // async clickAdvancedSearch() {
-    //     await this.appium.clickElement(this.locators.advSearchBtn.locator, this.locators.advSearchBtn.locatorType);
-    // }
+    validateAdvSearchOutput(advancedSearchOutput, cakeTypes = [], cakeRates = [], dateOfUpload = "", allTheseWords = "", exactWords = "") {
+        let expectedStr = `You have searched the following:`;
 
-    // async clickSearch() {
-    //     await this.appium.clickElement(this.locators.searchButton.locator, this.locators.searchButton.locatorType);
-    // }
+        if (!advancedSearchOutput.includes(expectedStr)) {
+            return false;
+        }
 
+        for (let cakeType of cakeTypes) {
+            const cakeTypeCap = this.capitalize(cakeType);
+            if (!advancedSearchOutput.includes(cakeTypeCap)) {
+                return false;
+            }
+        }
 
+        for (let cakeRate of cakeRates) {
+            if (!advancedSearchOutput.includes(cakeRate)) {
+                return false;
+            }
+        }
 
-    // async clickVisitUs() {
-    //     await this.appium.clickElement(this.locators.visitUs.locator, this.locators.visitUs.locatorType);
-    // }
+        if (allTheseWords && !advancedSearchOutput.includes(allTheseWords)) {
+            return false;
+        }
+
+        if (exactWords && !advancedSearchOutput.includes(exactWords)) {
+            return false;
+        }
+        return true;
+    }
 }
 
 module.exports = HomePage;
