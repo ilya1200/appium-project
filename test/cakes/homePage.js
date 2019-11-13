@@ -121,11 +121,13 @@ class HomePage {
             await cakeRateCheckBox.click();
         }
 
-        // const dateOfUploadInput = await this.appium.driver.$(this.locators.dateOfUpload.locator);
+        const dateOfUploadInput = await this.appium.driver.$(this.locators.dateOfUpload.locator);
         const allTheseWordsInput = await this.appium.driver.$(this.locators.allTheseWords.locator);
         const exactWordsInput = await this.appium.driver.$(this.locators.exactWords.locator);
 
-        // await dateOfUploadInput.setValue(dateOfUpload);
+        console.log(`Date : ${dateOfUpload}`);
+        await dateOfUploadInput.click();
+        await dateOfUploadInput.addValue(dateOfUpload);
         await allTheseWordsInput.setValue(allTheseWords);
         await exactWordsInput.setValue(exactWords);
     }
